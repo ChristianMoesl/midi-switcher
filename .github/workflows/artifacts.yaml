@@ -1,0 +1,49 @@
+name: Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to build artifacts for"
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      version:
+        description: "The version to build artifacts for"
+        type: string
+        required: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Install Toolchain
+        uses: ./.github/actions/setup-rust/
+        with:
+          components: "rustfmt, clippy, llvm-tools-preview"
+          cache: "false"
+
+      - name: Install UF2 converter and binutils
+        run: cargo install uf2conv cargo-binutils
+
+      - name: Prepare Firmware artifacts
+        run: |
+          cargo objcopy --release --locked -- -O binary midi_switcher.bin
+          uf2conv midi_switcher.bin --base 0x2000 --output midi_switcher.uf2
+
+      - name: Upload artifact to Github Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.event.inputs.version }}" midi_switcher.bin --clobber
+          gh release upload "${{ github.event.inputs.version }}" midi_switcher.uf2 --clobber

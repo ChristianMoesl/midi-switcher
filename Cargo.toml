@@ -1,0 +1,32 @@
+[package]
+name = "midi-switcher"
+version = "0.1.0"
+authors = ["Christian Moesl <christian.moesl@live.at>"]
+description = "Firmware for a small midi controlled guitar amp channel switcher based on Adafruit Feather M0"
+license = "MIT"
+repository = "https://github.com/ChristianMoesl/midi-switcher"
+readme = "README.md"
+edition = "2021"
+
+# for cargo flash
+[package.metadata]
+chip = "ATSAMD21G18A"
+
+[dependencies]
+cortex-m-rt = "0.7"
+panic-halt = "0.2"
+atsamd-hal = { version = "0.15", features = ["samd21g", "unproven"] }
+
+[target.'cfg(unix)'.dev-dependencies]
+cargo-husky = { version = "1", default-features = false, features = ["user-hooks"] }
+
+[profile.dev]
+incremental = false
+codegen-units = 1
+debug = true
+lto = false
+
+[profile.release]
+debug = true
+lto = true
+opt-level = "s"

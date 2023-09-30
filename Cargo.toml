@@ -15,7 +15,10 @@ chip = "ATSAMD21G18A"
 [dependencies]
 cortex-m-rt = "0.7"
 panic-halt = "0.2"
-atsamd-hal = { version = "0.15", features = ["samd21g", "unproven"] }
+atsamd-hal = { version = "0.15", features = ["samd21g", "usb", "samd21g-rt"] }
+midly = { version = "0.5", default-features = false }
+usb-device = "0.2"
+usbd-serial = "0.1"
 
 [target.'cfg(unix)'.dev-dependencies]
 cargo-husky = { version = "1", default-features = false, features = ["user-hooks"] }
